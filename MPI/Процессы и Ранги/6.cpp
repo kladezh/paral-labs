@@ -1,6 +1,19 @@
-// 6: Пересылка данных в главный процесс с использованием параметра MPI_ANY_SOURCE
+/*
+* 6.
+* В каждом подчинённом процессе дано целое число N, 
+* причём для одного процесса это число больше нуля, 
+* а для остальных равно нулю. 
+* 
+* В процессе с ненулевым N дан также набор из N чисел. 
+* 
+* Переслать данный набор чисел в главный процесс 
+* и вывести в главном процессе полученные числа и ранг процесса, переславшего этот набор. 
+*
+* При приёме сообщения использовать параметр MPI_ANY_SOURCE.
+*/
 
-#include <stdio.h>
+#include <iostream>
+#include <vector>
 #include <mpi.h>
 
 int main(int argc, char **argv)
@@ -11,33 +24,31 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    int N;
-    MPI_Status status;
-    int recv_number;
+    int N = 4;
 
-    if (rank == 0)
+    if (rank == 0) // главный процесс
     {
-        printf("Введите целое число N: ");
-        scanf("%d", &N);
-        int numbers[N];
-        for (int i = 1; i < size; i++)
-        {
-            MPI_Recv(&recv_number, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-            numbers[status.MPI_SOURCE] = recv_number;
+        MPI_Status status;
+        std::vector<int> recv_numbers(N);
+
+        MPI_Recv(recv_numbers.data(), N, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+        int source_rank = status.MPI_SOURCE;
+
+        std::cout << "From rank [" << source_rank << "] numbers:\n";
+        for (int i = 0; i < recv_numbers.size(); i++) {
+            std::cout << "[" << i << "] = " << recv_numbers[i] << "\n";
         }
 
-        printf("Числа в порядке возрастания рангов: ");
-        for (int i = 1; i < size; i++)
-        {
-            printf("%d ", numbers[i]);
-        }
-        printf("\n");
+        std::cout << std::endl;
     }
-    else
+    else if (rank == N) // подчиненный процесс
     {
-        printf("Процесс %d: Введите целое число: ", rank);
-        scanf("%d", &recv_number);
-        MPI_Send(&recv_number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+        std::vector<int> numbers(N);
+        for (int i = 0; i < numbers.size(); i++) {
+            numbers[i] = (i + 1) * 10;
+        }
+
+        MPI_Send(numbers.data(), N, MPI_INT, 0, 0, MPI_COMM_WORLD);
     }
 
     MPI_Finalize();

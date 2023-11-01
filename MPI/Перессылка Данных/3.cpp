@@ -1,6 +1,10 @@
-// 3: В главном процессе прочитать вещественное число X и вывести его противоположное значение. В каждом из остальных процессов вывести его ранг.
+/*
+* 3.
+* В главном процессе прочесть вещественное число X и вывести его противоположное значение, 
+* в каждом из остальных процессов (подчинённых процессов, ранг которых больше 0) вывести его ранг.
+*/
 
-#include <stdio.h>
+#include <iostream>
 #include <mpi.h>
 
 int main(int argc, char **argv)
@@ -11,19 +15,20 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    if (rank == 0)
-    {
+    if (rank == 0) { // главный процесс
         double X;
-        printf("Введите вещественное число X: ");
-        scanf_s("%lf", &X);
+        std::cout << "Enter the real number: ";
+        std::cin >> X;
 
-        double neg_X = -X;
-        printf("Главный процесс: Противоположное значение X = %lf\n", neg_X);
+        std::cout << "Opposite number = " << -X << std::endl;
     }
-    else
-    {
-        printf("Процесс %d: Мой ранг = %d\n", rank, size);
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if (rank != 0) { // подчиненные процессы
+        std::cout << "Rank: " << rank;
     }
+    std::cout << std::endl;
 
     MPI_Finalize();
     return 0;

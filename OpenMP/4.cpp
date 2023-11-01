@@ -12,18 +12,23 @@ int main()
     int i, j, k;
     double A[N][M], B[M], C[N];
 
-    // Заполнение матрицы A и вектора B (пример)
+    // Заполнение матрицы A
     for (i = 0; i < N; i++)
     {
         for (j = 0; j < M; j++)
         {
             A[i][j] = i + j;
         }
+    }
+
+    // Заполенение вектора B
+    for (i = 0; i < M; i++)
+    {
         B[i] = i;
     }
 
-// Вычисление произведения матрицы на вектор с блочным разделением
-#pragma omp parallel for private(j, k)
+    // Вычисление произведения матрицы на вектор с блочным разделением
+    #pragma omp parallel for private(j, k)
     for (i = 0; i < N; i += BLOCK_SIZE)
     {
         for (j = 0; j < M; j++)
@@ -36,10 +41,10 @@ int main()
     }
 
     // Вывод результата
-    printf("Результат умножения матрицы на вектор:\n");
+    printf("Result:\n");
     for (i = 0; i < N; i++)
     {
-        printf("%lf ", C[i]);
+        printf("%lf\n", C[i]);
     }
 
     return 0;

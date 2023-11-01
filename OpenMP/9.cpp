@@ -2,11 +2,12 @@
 
 #include <stdio.h>
 #include <omp.h>
+#include <math.h>
 
+// непрерываная функция
 double f(double x)
 {
-    // Здесь вставьте вашу функцию f(x)
-    return x * x; // Пример: x^2
+    return (4.0 * x * x) - (3.0 * x) + 2.0; // 4x^2 - 3x + 2
 }
 
 int main()
@@ -16,7 +17,7 @@ int main()
     double h = (b - a) / n;  // Ширина интервалов
     double integral = 0.0;
 
-#pragma omp parallel for reduction(+ : integral)
+    #pragma omp parallel for reduction(+ : integral)
     for (int i = 1; i < n; i++)
     {
         double x = a + i * h;
@@ -27,7 +28,7 @@ int main()
 
     integral *= h;
 
-    printf("Значение интеграла: %lf\n", integral);
+    printf("Intergal value: %lf\n", integral);
 
     return 0;
 }
